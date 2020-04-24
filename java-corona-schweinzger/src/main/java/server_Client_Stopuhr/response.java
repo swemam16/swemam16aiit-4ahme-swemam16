@@ -1,12 +1,12 @@
-package Server_Client_Stopuhr;
+package server_Client_Stopuhr;
 
-public class response {
+public class Response {
     private boolean master;
     private long count;
     private boolean running;
     private long time;
 
-    public response(boolean master, long count, boolean running, long time) {
+    public Response(boolean master, long count, boolean running, long time) {
         this.master = master;
         this.count = count;
         this.running = running;

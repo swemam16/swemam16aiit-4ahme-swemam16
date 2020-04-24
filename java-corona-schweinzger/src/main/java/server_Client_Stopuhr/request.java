@@ -1,6 +1,6 @@
-package Server_Client_Stopuhr;
+package server_Client_Stopuhr;
 
-public class request {
+public class Request {
     private boolean master;
     private boolean start;
     private boolean stop;
@@ -46,6 +46,4 @@ public class request {
     public void setEnd(boolean end) {
         this.end = end;
     }
-    
-    
 }
