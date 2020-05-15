@@ -12,38 +12,6 @@ public class Response {
         this.running = running;
         this.time = time;
     }
-
-    public boolean isMaster() {
-        return master;
-    }
-
-    public void setMaster(boolean master) {
-        this.master = master;
-    }
-
-    public long isCount() {
-        return count;
-    }
-
-    public void setCount(long count) {
-        this.count = count;
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    public long isTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
     
     
 }
