@@ -5,12 +5,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import static java.lang.constant.ConstantDescs.NULL;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 public class Server {
@@ -24,18 +22,29 @@ public class Server {
         
         while(true) {
             final Socket socket = serversocket.accept();
-            for(ConnectionHandler h : handlers) {
-                if(h.isClosed()) {
-                    handlers.remove(h);
+            synchronized(handlers) {
+                ConnectionHandler removeHandler = null;
+                boolean remove = false;
+                for(ConnectionHandler h : handlers) {
+                    if(h.isClosed()) {
+                        removeHandler = h;              //funktioniert nicht wenn sich mehr als ein Client zum selben Zeitpunkt disconnecten
+                        remove = true;
+                    }
+                } 
+                if(remove){
+                    handlers.remove(removeHandler);
+                }
+                if(handlers.size() == 3) {
+                    socket.close();
+                    continue;
                 }
             }
-            if(handlers.size() == 3) {
-            	socket.close();
-                continue;
-            }
+
             final ConnectionHandler handler = new ConnectionHandler(socket);
             new Thread(handler).start();
-            handlers.add(handler);
+            synchronized(handler) {
+                handlers.add(handler);
+            }
         }
     }
     
@@ -52,7 +61,8 @@ public class Server {
     }
     
     public static void main(String[] args) throws IOException {
-        new Server().start(8070);
+        System.out.println(System.getProperty("java.version"));
+        new Server().start(8080);
     }
       
             
@@ -76,19 +86,23 @@ public class Server {
         @Override
         public void run() {
             int count = 0;
-
             while(true) {
                 try {
                     final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
                     final String req = reader.readLine();
+                    if(req == null) {
+                        socket.close();
+                        return;
+                    }
                     count++;
+
                     final Gson gson = new Gson();
                     final Request r = gson.fromJson(req, Request.class);
 
                     if(r.isMaster()) {
                         boolean setMasterTrue = true;
-                        synchronized(handlers){
+                        synchronized(handlers) {
                             for(ConnectionHandler h : handlers) {
                                 if(!h.equals(this) && h.isMaster() == true) {
                                     setMasterTrue = false;
@@ -99,11 +113,6 @@ public class Server {
                         master = setMasterTrue;
                     }
 
-                    if(req == NULL){
-                        socket.close();
-                        break;
-                    }
-                    
                     if(r.isMaster()) {
                         if(r.isStart()) {
                             startMillis = System.currentTimeMillis();
@@ -112,7 +121,9 @@ public class Server {
                         if(r.isStop()) {
                             startMillis = 0;
                         } else {
-                            timeOffset = System.currentTimeMillis() - startMillis + timeOffset;
+                            if(isTimerRunning()) {
+                                timeOffset = System.currentTimeMillis() - startMillis + timeOffset;
+                            }  
                         }
 
                         if(r.isClear()) {
@@ -127,20 +138,22 @@ public class Server {
                         if(r.isEnd()) {
                             serversocket.close();
                             socket.close();
-                            synchronized(socket) {
-                                
+                            synchronized(handlers) {
+                                handlers.remove(this);
                             }
-                            handlers.remove(this);
                             return;
                         }        
                     }
 
                     //Response
-                    final Response resp = new Response(master, count, isTimerRunning(), getTimerMillis());
+                    final Response resp = new Response(master, count, isTimerRunning(), getTimerMillis(), socket.toString());
                     final String respString = gson.toJson(resp);
                     writer.write(respString);
                     writer.flush();
 
+                    System.out.print(req);
+                    System.out.println(respString);
+                    
                 } catch(Exception ex) {
                     ex.printStackTrace();
                 } 
