@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package server_Client_Stopuhr;
 
 import com.google.gson.Gson;
@@ -23,17 +28,13 @@ public class Server {
         while(true) {
             final Socket socket = serversocket.accept();
             synchronized(handlers) {
-                ConnectionHandler removeHandler = null;
-                boolean remove = false;
-                for(ConnectionHandler h : handlers) {
+                for(int i = 0; i < handlers.size(); i++) {
+                    ConnectionHandler h = handlers.get(i);
                     if(h.isClosed()) {
-                        removeHandler = h;              //funktioniert nicht wenn sich mehr als ein Client zum selben Zeitpunkt disconnecten
-                        remove = true;
+                        handlers.remove(h);
                     }
-                } 
-                if(remove){
-                    handlers.remove(removeHandler);
-                }
+                }   
+                
                 if(handlers.size() == 3) {
                     socket.close();
                     continue;
@@ -49,19 +50,22 @@ public class Server {
     }
     
     public boolean isTimerRunning() {
-        return startMillis > 0;
+        synchronized(handlers) {
+            return startMillis > 0;    
+        }
     }
     
     public long getTimerMillis() {
-    	if(startMillis > 0) {
-            return System.currentTimeMillis() - startMillis + timeOffset;
-        } else {
-            return timeOffset;
+        synchronized(handlers) {
+            if(startMillis > 0) {
+                return System.currentTimeMillis() - startMillis + timeOffset;
+            } else {
+                return timeOffset;
+            } 
         }
     }
     
     public static void main(String[] args) throws IOException {
-        System.out.println(System.getProperty("java.version"));
         new Server().start(8080);
     }
       
@@ -96,15 +100,16 @@ public class Server {
                         return;
                     }
                     count++;
-
+                    System.out.println(req);
                     final Gson gson = new Gson();
                     final Request r = gson.fromJson(req, Request.class);
 
                     if(r.isMaster()) {
                         boolean setMasterTrue = true;
                         synchronized(handlers) {
-                            for(ConnectionHandler h : handlers) {
-                                if(!h.equals(this) && h.isMaster() == true) {
+                            for(int i = 0; i < handlers.size(); i++) {
+                                ConnectionHandler h = handlers.get(i);
+                                if(h != this && h.isMaster()) {
                                     setMasterTrue = false;
                                     break;
                                 }
@@ -112,50 +117,50 @@ public class Server {
                         }
                         master = setMasterTrue;
                     }
-
-                    if(r.isMaster()) {
-                        if(r.isStart()) {
-                            startMillis = System.currentTimeMillis();
-                        }
-
-                        if(r.isStop()) {
-                            startMillis = 0;
-                        } else {
-                            if(isTimerRunning()) {
-                                timeOffset = System.currentTimeMillis() - startMillis + timeOffset;
-                            }  
-                        }
-
-                        if(r.isClear()) {
-                            timeOffset = 0;
-                            if(isTimerRunning()) {
+                    synchronized(handlers) {
+                        if(r.isMaster()) {
+                            if(r.isStart()) {
                                 startMillis = System.currentTimeMillis();
-                            } else {
-                                startMillis = 0;
-                            } 
-                        }
-
-                        if(r.isEnd()) {
-                            serversocket.close();
-                            socket.close();
-                            synchronized(handlers) {
-                                handlers.remove(this);
                             }
-                            return;
-                        }        
+
+                            if(r.isStop()) {
+                                startMillis = 0;
+                            } else {
+                                if(isTimerRunning()) {
+                                    timeOffset = System.currentTimeMillis() - startMillis + timeOffset;
+                                }  
+                            }
+
+                            if(r.isClear()) {
+                                timeOffset = 0;
+                                if(isTimerRunning()) {
+                                    startMillis = System.currentTimeMillis();
+                                } else {
+                                    startMillis = 0;
+                                } 
+                            }
+
+                            if(r.isEnd()) {
+                                serversocket.close();
+                                socket.close();
+                                synchronized(handlers) {
+                                    handlers.remove(this);
+                                }
+                                return;
+                            }        
+                        }
                     }
+
 
                     //Response
                     final Response resp = new Response(master, count, isTimerRunning(), getTimerMillis(), socket.toString());
                     final String respString = gson.toJson(resp);
                     writer.write(respString);
                     writer.flush();
-
-                    System.out.print(req);
                     System.out.println(respString);
-                    
                 } catch(Exception ex) {
                     ex.printStackTrace();
+                    return;
                 } 
             }
         }
