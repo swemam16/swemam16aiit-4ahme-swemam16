@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package server_Client_Stopuhr;
+package server_Client_Stopuhr.gui;
 
 import java.awt.Dimension;
+import java.util.List;
 import javax.swing.SwingWorker;
 
 public class client extends javax.swing.JFrame {
@@ -15,6 +16,7 @@ public class client extends javax.swing.JFrame {
         setTitle("Client");
         setMinimumSize(new Dimension(300, 250));
         setSize(400, 300);
+        jTimer.setText("0.000");
     }
 
     
@@ -56,18 +58,43 @@ public class client extends javax.swing.JFrame {
         jPanel2.add(jbConnect);
 
         jbDisconnect.setText("Disconnect");
+        jbDisconnect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbDisconnectActionPerformed(evt);
+            }
+        });
         jPanel2.add(jbDisconnect);
 
         jbStart.setText("Start");
+        jbStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbStartActionPerformed(evt);
+            }
+        });
         jPanel2.add(jbStart);
 
         jbStop.setText("Stop");
+        jbStop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbStopActionPerformed(evt);
+            }
+        });
         jPanel2.add(jbStop);
 
         jbClear.setText("Clear");
+        jbClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbClearActionPerformed(evt);
+            }
+        });
         jPanel2.add(jbClear);
 
         jbEnd.setText("End");
+        jbEnd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbEndActionPerformed(evt);
+            }
+        });
         jPanel2.add(jbEnd);
 
         jPanel1.add(jPanel2);
@@ -99,6 +126,26 @@ public class client extends javax.swing.JFrame {
     private void jbConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbConnectActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jbConnectActionPerformed
+
+    private void jbDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbDisconnectActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbDisconnectActionPerformed
+
+    private void jbStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbStartActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbStartActionPerformed
+
+    private void jbStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbStopActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbStopActionPerformed
+
+    private void jbClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbClearActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbClearActionPerformed
+
+    private void jbEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbEndActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jbEndActionPerformed
 
     /**
      * @param args the command line arguments
@@ -151,12 +198,4 @@ public class client extends javax.swing.JFrame {
     private javax.swing.JSlider jsRefreshrate;
     // End of variables declaration//GEN-END:variables
 
-    private class task extends SwingWorker<Object, Object>{
-
-        @Override
-        protected Object doInBackground() throws Exception {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-        
-    }
 }

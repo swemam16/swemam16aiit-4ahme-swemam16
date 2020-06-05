@@ -65,26 +65,41 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Disconnect"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbDisconnectActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbStart">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Start"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbStartActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbStop">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Stop"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbStopActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbClear">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Clear"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbClearActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="jbEnd">
               <Properties>
                 <Property name="text" type="java.lang.String" value="End"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jbEndActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
