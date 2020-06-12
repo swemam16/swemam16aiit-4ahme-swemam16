@@ -6,8 +6,10 @@
 package server_Client_Stopuhr.gui;
 
 import java.awt.Dimension;
+import java.net.Socket;
 import java.util.List;
 import javax.swing.SwingWorker;
+import server_Client_Stopuhr.ConnectionWorker;
 
 public class client extends javax.swing.JFrame {
     
@@ -17,6 +19,13 @@ public class client extends javax.swing.JFrame {
         setMinimumSize(new Dimension(300, 250));
         setSize(400, 300);
         jTimer.setText("0.000");
+
+        jbConnect.setEnabled(true);
+        jbDisconnect.setEnabled(false);
+        jbStart.setEnabled(false);
+        jbStop.setEnabled(false);
+        jbClear.setEnabled(false);
+        jbEnd.setEnabled(false);
     }
 
     
@@ -124,27 +133,64 @@ public class client extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jbConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbConnectActionPerformed
-        // TODO add your handling code here:
+
+        System.out.println("pressed" + Thread.currentThread().getId());
+        ConnectionWorker worker = new MyConnectionWorker(8080, "127.0.0.1");
+        worker.execute();
+            
+        jbConnect.setEnabled(false);
+        jbDisconnect.setEnabled(true);
+        jbStart.setEnabled(true);
+        jbStop.setEnabled(false);
+        jbClear.setEnabled(false);
+        jbEnd.setEnabled(true);
+
     }//GEN-LAST:event_jbConnectActionPerformed
 
     private void jbDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbDisconnectActionPerformed
-        // TODO add your handling code here:
+        jbConnect.setEnabled(true);
+        jbDisconnect.setEnabled(false);
+        jbStart.setEnabled(false);
+        jbStop.setEnabled(false);
+        jbClear.setEnabled(false);
+        jbEnd.setEnabled(false);
     }//GEN-LAST:event_jbDisconnectActionPerformed
 
     private void jbStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbStartActionPerformed
-        // TODO add your handling code here:
+        jbConnect.setEnabled(false);
+        jbDisconnect.setEnabled(true);
+        jbStart.setEnabled(false);
+        jbStop.setEnabled(true);
+        jbClear.setEnabled(true);
+        jbEnd.setEnabled(true);
     }//GEN-LAST:event_jbStartActionPerformed
 
     private void jbStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbStopActionPerformed
-        // TODO add your handling code here:
+        jbConnect.setEnabled(false);
+        jbDisconnect.setEnabled(true);
+        jbStart.setEnabled(true);
+        jbStop.setEnabled(false);
+        jbClear.setEnabled(false);
+        jbEnd.setEnabled(true);
     }//GEN-LAST:event_jbStopActionPerformed
 
     private void jbClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbClearActionPerformed
-        // TODO add your handling code here:
+        jbConnect.setEnabled(false);
+        jbDisconnect.setEnabled(true);
+        jbStart.setEnabled(true);
+        jbStop.setEnabled(false);
+        jbClear.setEnabled(false);
+        jbEnd.setEnabled(true);
+        jTimer.setText("0.000");
     }//GEN-LAST:event_jbClearActionPerformed
 
     private void jbEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbEndActionPerformed
-        // TODO add your handling code here:
+        jbConnect.setEnabled(false);
+        jbDisconnect.setEnabled(true);
+        jbStart.setEnabled(true);
+        jbStop.setEnabled(false);
+        jbClear.setEnabled(false);
+        jbEnd.setEnabled(true);
     }//GEN-LAST:event_jbEndActionPerformed
 
     /**
@@ -182,6 +228,44 @@ public class client extends javax.swing.JFrame {
         });
     }
     
+    
+    
+    private class MyConnectionWorker extends ConnectionWorker{
+        
+        public MyConnectionWorker(int port, String hostName) {
+            super(port, hostName);
+        }
+
+        @Override
+        protected void done() {
+           
+            
+            try {
+                String time = get();
+                System.out.println(time + " " + Thread.currentThread().getId());
+                jTimer.setText(time);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            
+            
+        
+        }
+
+        @Override
+        protected void process(List<Integer> chunks) {
+            for(int x : chunks){
+                System.out.println("Process " + x + " Thread " + Thread.currentThread().getId());
+            }
+        }
+        
+        
+        
+    }
+    
+    
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -199,3 +283,5 @@ public class client extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
 }
+    
+
