@@ -14,6 +14,26 @@ public class Response {
         this.time = time;
         this.connected = connected;
     }
+
+    public long getTime() {
+        return time;
+    }
+
+    public boolean isMaster() {
+        return master;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public String getConnected() {
+        return connected;
+    }
     
     
 }

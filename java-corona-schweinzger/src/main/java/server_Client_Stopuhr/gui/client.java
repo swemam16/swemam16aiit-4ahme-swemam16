@@ -5,13 +5,25 @@
  */
 package server_Client_Stopuhr.gui;
 
+import com.google.gson.Gson;
 import java.awt.Dimension;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
+import static java.util.Collections.list;
 import java.util.List;
 import javax.swing.SwingWorker;
 import server_Client_Stopuhr.ConnectionWorker;
+import server_Client_Stopuhr.Request;
+import server_Client_Stopuhr.Response;
 
 public class client extends javax.swing.JFrame {
+    
+    private boolean start = false;
+    private boolean stop = false;
+    private boolean clear = false;
+    private boolean end = false;
     
     public client() {
         initComponents();
@@ -137,14 +149,6 @@ public class client extends javax.swing.JFrame {
         System.out.println("pressed" + Thread.currentThread().getId());
         ConnectionWorker worker = new MyConnectionWorker(8080, "127.0.0.1");
         worker.execute();
-            
-        jbConnect.setEnabled(false);
-        jbDisconnect.setEnabled(true);
-        jbStart.setEnabled(true);
-        jbStop.setEnabled(false);
-        jbClear.setEnabled(false);
-        jbEnd.setEnabled(true);
-
     }//GEN-LAST:event_jbConnectActionPerformed
 
     private void jbDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbDisconnectActionPerformed
@@ -163,6 +167,8 @@ public class client extends javax.swing.JFrame {
         jbStop.setEnabled(true);
         jbClear.setEnabled(true);
         jbEnd.setEnabled(true);
+        
+        start = true;
     }//GEN-LAST:event_jbStartActionPerformed
 
     private void jbStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbStopActionPerformed
@@ -172,6 +178,8 @@ public class client extends javax.swing.JFrame {
         jbStop.setEnabled(false);
         jbClear.setEnabled(false);
         jbEnd.setEnabled(true);
+        
+        stop = true;
     }//GEN-LAST:event_jbStopActionPerformed
 
     private void jbClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbClearActionPerformed
@@ -182,6 +190,8 @@ public class client extends javax.swing.JFrame {
         jbClear.setEnabled(false);
         jbEnd.setEnabled(true);
         jTimer.setText("0.000");
+        
+        clear = true;
     }//GEN-LAST:event_jbClearActionPerformed
 
     private void jbEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbEndActionPerformed
@@ -191,6 +201,8 @@ public class client extends javax.swing.JFrame {
         jbStop.setEnabled(false);
         jbClear.setEnabled(false);
         jbEnd.setEnabled(true);
+        
+        end = true;
     }//GEN-LAST:event_jbEndActionPerformed
 
     /**
@@ -232,35 +244,57 @@ public class client extends javax.swing.JFrame {
     
     private class MyConnectionWorker extends ConnectionWorker{
         
+        private Socket socket;
+        private Response resp;
+        
         public MyConnectionWorker(int port, String hostName) {
             super(port, hostName);
         }
 
-        @Override
-        protected void done() {
-           
-            
-            try {
-                String time = get();
-                System.out.println(time + " " + Thread.currentThread().getId());
-                jTimer.setText(time);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            protected String doInBackground() throws Exception{
+
+            final Gson g = new Gson();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+
+            while(true){
+                try{
+                    final Request req = new Request(true, start, stop, clear, end);
+                    final String reqString = g.toJson(req);
+                    writer.write(reqString);
+                    writer.flush();
+
+                    start = false;
+                    stop = false;
+                    clear = false;
+                    end = false; 
+                    
+                    final String respString = reader.readLine();
+                    final Response resp = g.fromJson(respString, Response.class);
+                    publish(resp);
+                } catch (Exception ex){
+                    ex.printStackTrace();
+                }
             }
-            
-            
-        
         }
 
-        @Override
-        protected void process(List<Integer> chunks) {
-            for(int x : chunks){
-                System.out.println("Process " + x + " Thread " + Thread.currentThread().getId());
+
+        protected void process(List<Response> list) {
+            Response resp = list.get(0);
+            
+            if(resp.isMaster()){
+                jbConnect.setEnabled(false);
+                jbDisconnect.setEnabled(true);
+                jbStart.setEnabled(true);
+                jbStop.setEnabled(false);
+                jbClear.setEnabled(false);
+                jbEnd.setEnabled(true);
+            }
+            
+            if(resp.isRunning()){
+                jTimer.setText(String.format("%.3f", resp.getTime()));
             }
         }
-        
-        
-        
     }
     
     
