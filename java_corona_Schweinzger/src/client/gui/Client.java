@@ -193,6 +193,9 @@ public class Client extends javax.swing.JFrame {
             worker.execute();
             jBtnConnect.setEnabled(false);
             jBtnDisconnect.setEnabled(true);
+            jBtnStart.setEnabled(true);
+            jBtnStop.setEnabled(true);
+            jBtnClear.setEnabled(true);
             jBtnEnd.setEnabled(true);
         } catch(Exception ex) {
             JOptionPane.showMessageDialog(this, "Konnte nicht mit dem Server verbinden", "Fehler", JOptionPane.ERROR_MESSAGE);
@@ -210,19 +213,27 @@ public class Client extends javax.swing.JFrame {
     }//GEN-LAST:event_jBtnDisconnectActionPerformed
 
     private void jBtnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnStartActionPerformed
-        tryToStart = true;
+         if(worker != null){
+          worker.setTryToStart(true);
+        }
     }//GEN-LAST:event_jBtnStartActionPerformed
 
     private void jBtnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnStopActionPerformed
-        tryToStop = true;
+         if(worker != null){
+          worker.setTryToStop(true);
+        }
     }//GEN-LAST:event_jBtnStopActionPerformed
 
     private void jBtnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnClearActionPerformed
-        tryToClear = true;
+         if(worker != null){
+          worker.setTryToClear(true);
+        }
     }//GEN-LAST:event_jBtnClearActionPerformed
 
     private void jBtnEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnEndActionPerformed
-        tryToEnd = true;
+        if(worker != null){
+          worker.setTryToEnd(true);
+        }
     }//GEN-LAST:event_jBtnEndActionPerformed
 
     /**

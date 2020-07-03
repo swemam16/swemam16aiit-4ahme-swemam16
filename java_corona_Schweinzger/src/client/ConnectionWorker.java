@@ -22,7 +22,7 @@ public class ConnectionWorker extends SwingWorker<String, Response> {
     private boolean tryToEnd;
     private boolean cancel;
     private Socket socket;
-    private int sliderState;
+    private Integer sliderState = 0;
     
 
     public ConnectionWorker(String host, int port) throws IOException {
@@ -49,7 +49,7 @@ public class ConnectionWorker extends SwingWorker<String, Response> {
         this.cancel = cancel;
     }
 
-    public void setSliderState(int sliderState) {
+    public synchronized void setSliderState(int sliderState) {
         this.sliderState = sliderState;
     }
     
@@ -80,8 +80,11 @@ public class ConnectionWorker extends SwingWorker<String, Response> {
                 final String respString = reader.readLine();
                 final Response resp = g.fromJson(respString, Response.class);
                 publish(resp);
-
-                Thread.sleep(1000 - sliderState));
+                
+                synchronized(sliderState){
+                    int localSliderState = sliderState;
+                    Thread.sleep(1000 - localSliderState);
+                }
             } catch(Exception ex ){
                 ex.printStackTrace();
             }
