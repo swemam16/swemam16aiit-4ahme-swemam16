@@ -13,19 +13,82 @@ import server.Request;
 import server.Response;
 
 
+
 public class ConnectionWorker extends SwingWorker<String, Response> {
-  
+    
+    private boolean tryToStart;
+    private boolean tryToStop;
+    private boolean tryToClear;
+    private boolean tryToEnd;
+    private boolean cancel;
+    private Socket socket;
+    private int sliderState;
+    
+
+    public ConnectionWorker(String host, int port) throws IOException {
+            socket = new Socket(host, port);
+    }
+    
+    public void setTryToStart(boolean tryToStart) {
+        this.tryToStart = tryToStart;
+    }
+
+    public void setTryToStop(boolean tryToStop) {
+        this.tryToStop = tryToStop;
+    }
+
+    public void setTryToClear(boolean tryToClear) {
+        this.tryToClear = tryToClear;
+    }
+
+    public void setTryToEnd(boolean tryToEnd) {
+        this.tryToEnd = tryToEnd;
+    }
+
+    public void setCancel(boolean cancel) {
+        this.cancel = cancel;
+    }
+
+    public void setSliderState(int sliderState) {
+        this.sliderState = sliderState;
+    }
+    
+    
+    
     @Override
     protected void process(List<Response> list) {
     }
-
-    @Override
-    protected void done() {
-        super.done();
-    }
-
+    
     @Override
     protected String doInBackground() throws Exception {
-        return "Ok";
+        final Gson g = new Gson();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        final OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+        while(!cancel) {
+            try {                
+                final Request resq = new Request(true, tryToStart, tryToStop, tryToClear, tryToEnd);
+                final String resqString = g.toJson(resq);
+                writer.write(resqString);
+                writer.flush();
+
+                tryToStart = false;
+                tryToStop = false;
+                tryToClear = false;
+                tryToEnd = false;
+
+
+                final String respString = reader.readLine();
+                final Response resp = g.fromJson(respString, Response.class);
+                publish(resp);
+
+                Thread.sleep(1000 - sliderState));
+            } catch(Exception ex ){
+                ex.printStackTrace();
+            }
+        }
+        return "finished";
     }
 }
+
+
+
